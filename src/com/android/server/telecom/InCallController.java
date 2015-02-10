@@ -658,6 +658,7 @@ public final class InCallController extends CallsManagerListenerBase {
                 call.getCannedSmsResponses(),
                 capabilities,
                 properties,
+                call.getCreationTimeMillis(),
                 connectTimeMillis,
                 handle,
                 call.getHandlePresentation(),
