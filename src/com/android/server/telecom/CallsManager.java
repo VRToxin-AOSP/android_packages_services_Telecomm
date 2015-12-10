@@ -722,12 +722,19 @@ public class CallsManager extends Call.ListenerBase implements VideoProviderProx
         call.setGatewayInfo(gatewayInfo);
         call.setVideoState(videoState);
 
+        boolean isBluetoothAudioConnected = mCallAudioManager.isBluetoothAudioOn();
+        boolean isWiredHeadsetPluggedIn = mWiredHeadsetManager.isPluggedIn();
+
         if (speakerphoneOn) {
             Log.i(this, "%s Starting with speakerphone as requested", call);
+        } else if (isBluetoothAudioConnected || isWiredHeadsetPluggedIn) {
+            Log.i(this, "%s Not starting with speakerphone as Bluetooth or wired connected.");
         } else {
             Log.i(this, "%s Starting with speakerphone because car is docked.", call);
         }
-        call.setStartWithSpeakerphoneOn(speakerphoneOn || mDockManager.isDocked());
+        call.setStartWithSpeakerphoneOn(speakerphoneOn ||
+                (mDockManager.isDocked() &&
+                !isBluetoothAudioConnected && !isWiredHeadsetPluggedIn));
 
         if (call.isEmergencyCall()) {
             // Emergency -- CreateConnectionProcessor will choose accounts automatically
