@@ -32,6 +32,7 @@ import android.telecom.TelecomManager;
 import android.telecom.VideoProfile;
 import android.telephony.DisconnectCause;
 import android.telephony.PhoneNumberUtils;
+import android.telephony.ServiceState;
 import android.text.TextUtils;
 
 // TODO: Needed for move to system service: import com.android.internal.R;
@@ -201,6 +202,16 @@ class NewOutgoingCallIntentBroadcaster {
         if (!isUriNumber) {
             number = PhoneNumberUtils.convertKeypadLettersToDigits(number);
             number = PhoneNumberUtils.stripSeparators(number);
+        }
+
+        // Convert emergency number into specific international emergency number
+        // if necessary. This is required in some regions (e.g. Taiwan).
+        ServiceState ss = TelecomSystem.getInstance().getServiceState();
+        if (ss == null || ss.getState() != ServiceState.STATE_IN_SERVICE) {
+            if (PhoneNumberUtils.convertEmergencyNumberForIntent(mContext, intent)) {
+                // Conversion took place. Get new converted number.
+                number = PhoneNumberUtils.getNumberFromIntent(intent, mContext);
+            }
         }
 
         final boolean isPotentialEmergencyNumber = isPotentialEmergencyNumber(number);

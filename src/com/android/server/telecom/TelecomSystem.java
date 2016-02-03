@@ -23,6 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.UserHandle;
+import android.telephony.PhoneStateListener;
+import android.telephony.ServiceState;
+import android.telephony.TelephonyManager;
 
 /**
  * Top-level Application class for Telecom.
@@ -67,6 +70,7 @@ public final class TelecomSystem {
     private final TelecomBroadcastIntentProcessor mTelecomBroadcastIntentProcessor;
     private final TelecomServiceImpl mTelecomServiceImpl;
     private final ContactsAsyncHelper mContactsAsyncHelper;
+    private ServiceState mServiceState;
 
     /**
      * Blacklist call notifier. Exists here so that the instance can be shared with
@@ -132,6 +136,7 @@ public final class TelecomSystem {
                 mContext, mCallsManager);
         mTelecomServiceImpl = new TelecomServiceImpl(
                 mContext, mCallsManager, mPhoneAccountRegistrar, mLock);
+        startListenPhoneState();
     }
 
     @VisibleForTesting
@@ -157,5 +162,18 @@ public final class TelecomSystem {
 
     public Object getLock() {
         return mLock;
+    }
+
+    private void startListenPhoneState() {
+        TelephonyManager.from(mContext).listen(new PhoneStateListener() {
+            @Override
+            public void onServiceStateChanged(ServiceState state) {
+                mServiceState = state;
+            }
+        }, PhoneStateListener.LISTEN_SERVICE_STATE);
+    }
+
+    public ServiceState getServiceState() {
+        return mServiceState;
     }
 }
