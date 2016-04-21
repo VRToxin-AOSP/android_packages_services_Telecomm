@@ -512,6 +512,14 @@ public class CallsManager extends Call.ListenerBase implements VideoProviderProx
      */
     void processIncomingCallIntent(PhoneAccountHandle phoneAccountHandle, Bundle extras) {
         Log.d(this, "processIncomingCallIntent");
+
+        // Disconnect the call in SELECT_PHONE_ACCOUNT state before handle an incoming call.
+        for (Call call : mCalls) {
+            if (call.getState() == CallState.SELECT_PHONE_ACCOUNT) {
+                call.disconnect();
+            }
+        }
+
         Uri handle = extras.getParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS);
         if (handle == null) {
             // Required for backwards compatibility
