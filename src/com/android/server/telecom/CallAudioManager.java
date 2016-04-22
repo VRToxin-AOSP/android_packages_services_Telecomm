@@ -520,7 +520,7 @@ final class CallAudioManager extends CallsManagerListenerBase
                 mIsRinging, mIsTonePlaying, callToUpdate);
 
         boolean wasVoiceCall = mAudioFocusStreamType == AudioManager.STREAM_VOICE_CALL;
-        if (mIsRinging) {
+        if (mIsRinging || hasRingingForegroundCall()) {
             Log.i(this, "updateAudioStreamAndMode : ringing");
             requestAudioFocusAndSetMode(AudioManager.STREAM_RING, AudioManager.MODE_RINGTONE);
         } else {
